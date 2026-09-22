@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface EstudianteRepository extends JpaRepository<Estudiante, Long> { 
     Optional<Estudiante> findByEmail(String email); 
     boolean existsByCodigo(String codigo); 
-} 
+    boolean existsByCodigoAndIdNot(String codigo, Long id);
+    boolean existsByEmailIgnoreCase(String email);
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+}

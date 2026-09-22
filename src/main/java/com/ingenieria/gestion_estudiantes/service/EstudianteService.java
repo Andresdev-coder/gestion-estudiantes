@@ -22,8 +22,12 @@ public class EstudianteService {
 
     @Transactional
     public Estudiante registrar(Estudiante estudiante) {
+        validar(estudiante);
         if (repository.existsByCodigo(estudiante.getCodigo())) {
-            throw new IllegalArgumentException("El código ya se encuentra registrado.");
+            throw new IllegalArgumentException("El código de estudiante ya se encuentra registrado.");
+        }
+        if (repository.existsByEmailIgnoreCase(estudiante.getEmail())) {
+            throw new IllegalArgumentException("El correo ya se encuentra registrado.");
         }
         return repository.save(estudiante);
     }
@@ -38,10 +42,26 @@ public class EstudianteService {
     @Transactional
     public Estudiante actualizar(Long id, Estudiante datos) {
         Estudiante existente = obtenerPorId(id);
+        validar(datos);
+        if (repository.existsByCodigoAndIdNot(datos.getCodigo(), id)) {
+            throw new IllegalArgumentException("El código de estudiante ya se encuentra registrado.");
+        }
+        if (repository.existsByEmailIgnoreCaseAndIdNot(datos.getEmail(), id)) {
+            throw new IllegalArgumentException("El correo ya se encuentra registrado.");
+        }
         existente.setNombre(datos.getNombre());
         existente.setEmail(datos.getEmail());
         existente.setCodigo(datos.getCodigo());
         return repository.save(existente);
+    }
+
+    private void validar(Estudiante estudiante) {
+        if (estudiante.getNombre() == null || estudiante.getNombre().isBlank())
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        if (estudiante.getCodigo() == null || estudiante.getCodigo().isBlank())
+            throw new IllegalArgumentException("El código es obligatorio.");
+        if (estudiante.getEmail() == null || !estudiante.getEmail().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))
+            throw new IllegalArgumentException("Ingresa un correo electrónico válido.");
     }
 
     @Transactional
